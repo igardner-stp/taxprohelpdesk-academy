@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-inter: "Inter", system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-surface-50 text-navy-800 antialiased;
+  }
+  h1, h2, h3, h4 {
+    @apply font-semibold tracking-tight text-navy-900;
+  }
+  a {
+    @apply text-brand-600;
+  }
+}
+
+@layer components {
+  /* ---- Buttons ---- */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5
+           font-semibold text-white shadow-sm transition hover:bg-brand-700
+           focus:outline-none focus:ring-2 focus:ring-brand-600 focus:ring-offset-2
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-navy {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-navy-800 px-4 py-2.5
+           font-semibold text-white shadow-sm transition hover:bg-navy-700
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-surface-200
+           bg-white px-4 py-2.5 font-medium text-navy-700 transition hover:bg-surface-100
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-status-red/30
+           bg-white px-3 py-2 font-medium text-status-red transition hover:bg-red-50
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  /* ---- Surfaces ---- */
+  .panel {
+    @apply rounded-xl border border-surface-200 bg-white shadow-card;
+  }
+  .card-hover {
+    @apply transition hover:shadow-cardHover hover:border-surface-300;
+  }
+
+  /* ---- Forms ---- */
+  .input {
+    @apply w-full rounded-lg border border-surface-200 bg-white px-3 py-2.5 text-navy-900
+           placeholder:text-navy-500/60 outline-none transition
+           focus:border-brand-600 focus:ring-1 focus:ring-brand-600;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-navy-700;
+  }
+
+  /* ---- Badges ---- */
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  }
+
+  /* Horizontal page gutter (mobile-first). */
+  .layout-px {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Rendered lesson markdown ("prose"). */
+  .lesson-body {
+    @apply text-[15px] leading-7 text-navy-700;
+  }
+  .lesson-body h1 { @apply mt-6 mb-3 text-2xl; }
+  .lesson-body h2 { @apply mt-6 mb-2 text-xl; }
+  .lesson-body h3 { @apply mt-5 mb-2 text-lg; }
+  .lesson-body p { @apply my-3; }
+  .lesson-body ul { @apply my-3 list-disc space-y-1.5 pl-6; }
+  .lesson-body ol { @apply my-3 list-decimal space-y-1.5 pl-6; }
+  .lesson-body li { @apply pl-1; }
+  .lesson-body a { @apply text-brand-600 underline; }
+  .lesson-body strong { @apply font-semibold text-navy-900; }
+  .lesson-body blockquote {
+    @apply my-4 border-l-4 border-brand-200 bg-brand-50 py-2 pl-4 pr-3 text-navy-700;
+  }
+  .lesson-body code {
+    @apply rounded bg-surface-100 px-1.5 py-0.5 font-mono text-[13px] text-navy-900;
+  }
+  .lesson-body hr { @apply my-6 border-surface-200; }
+  .lesson-body img { @apply my-4 rounded-lg border border-surface-200; }
+}
+
+@layer utilities {
+  .scroll-touch { -webkit-overflow-scrolling: touch; }
+}
+
+/* ---- Print styles for certificates ---- */
+@media print {
+  .no-print { display: none !important; }
+  body { background: #ffffff !important; }
+  .print-full { box-shadow: none !important; border: none !important; }
+}
