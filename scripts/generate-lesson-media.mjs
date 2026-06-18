@@ -4,19 +4,25 @@
  * Turns a lesson definition (scripts/lessons/<KEY>.mjs) into a narrated,
  * code-driven interactive lesson:
  *   1. For each slide, generate ElevenLabs speech + word-level timings.
- *   2. Write audio files + manifest.json to public/academy-media/<KEY>/.
- *   3. (optional) Push the manifest into the live lessons.media_manifest column.
+ *   2. Upload audio to Supabase Storage bucket "academy-media" (when --db).
+ *      Without --db, write to public/academy-media/<KEY>/ for local testing.
+ *   3. Push manifest JSON to the live lessons.media_manifest column (--db).
  *
  * Usage:
- *   node scripts/generate-lesson-media.mjs E1.1            # real audio (needs key)
+ *   node scripts/generate-lesson-media.mjs E1.1            # real audio, local files only
  *   node scripts/generate-lesson-media.mjs E1.1 --dry      # silent placeholders
- *   node scripts/generate-lesson-media.mjs E1.1 --db       # also write to Supabase
+ *   node scripts/generate-lesson-media.mjs E1.1 --db       # upload to Storage + write DB
  *
  * Requires .env.local in the project root with:
  *   ELEVENLABS_API_KEY=...           (omit only for --dry)
  *   ELEVENLABS_VOICE_ID=...          (an ElevenLabs voice id)
  *   ELEVENLABS_MODEL_ID=...          (optional, default eleven_multilingual_v2)
  *   NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY   (only for --db)
+ *
+ * SETUP: before the first --db run, apply the DB migration:
+ *   node scripts/apply-schema-migration.mjs
+ * Then create the Supabase Storage bucket:
+ *   node scripts/setup-storage.mjs
  */
 
 import { config } from "dotenv";
@@ -169,13 +175,27 @@ async function main() {
     throw new Error(`Lesson definition ${key} has no slides.`);
   }
 
-  const outDir = join(PROJECT_ROOT, "public", "academy-media", def.key || key);
-  await mkdir(outDir, { recursive: true });
+  // When --db: upload to Supabase Storage; otherwise write to local public/ dir.
+  const lessonKey = def.key || key;
+  let supabase = null;
+  let storageBucket = null;
+  if (PUSH_DB) {
+    const { createClient } = await import("@supabase/supabase-js");
+    supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      { auth: { persistSession: false } }
+    );
+    storageBucket = "academy-media";
+  }
+
+  const outDir = join(PROJECT_ROOT, "public", "academy-media", lessonKey);
+  if (!PUSH_DB) await mkdir(outDir, { recursive: true });
 
   console.log(
     `\nGenerating "${def.matchTitle}" (${def.slides.length} slides) — ${
       DRY ? "DRY (silent placeholders)" : `voice ${VOICE_ID} / ${MODEL_ID}`
-    }\n`
+    }${PUSH_DB ? " → Supabase Storage" : ""}\n`
   );
 
   const slides = [];
@@ -198,15 +218,29 @@ async function main() {
     }
 
     const fileName = `${s.id}.${ext}`;
-    await writeFile(join(outDir, fileName), audio);
-    const audioUrl = `/academy-media/${def.key || key}/${fileName}`;
+    let audioUrl;
+
+    if (PUSH_DB && supabase) {
+      // Upload to Supabase Storage
+      const storagePath = `${lessonKey}/${fileName}`;
+      const mimeType = ext === "mp3" ? "audio/mpeg" : "audio/wav";
+      const { error: upErr } = await supabase.storage
+        .from(storageBucket)
+        .upload(storagePath, audio, { contentType: mimeType, upsert: true });
+      if (upErr) throw new Error(`Storage upload failed for ${storagePath}: ${upErr.message}`);
+      const { data: { publicUrl } } = supabase.storage
+        .from(storageBucket)
+        .getPublicUrl(storagePath);
+      audioUrl = publicUrl;
+    } else {
+      await writeFile(join(outDir, fileName), audio);
+      audioUrl = `/academy-media/${lessonKey}/${fileName}`;
+    }
 
     console.log(
       `  ✓ ${s.id} (${s.layout})  ${(durationMs / 1000).toFixed(1)}s  ${words.length} words`
     );
 
-    // Strip the authoring-only narration duplicate is unnecessary — narration is
-    // also the transcript/caption, so keep it.
     slides.push({
       id: s.id,
       layout: s.layout,
@@ -232,32 +266,25 @@ async function main() {
     slides,
   };
 
-  await writeFile(join(outDir, "manifest.json"), JSON.stringify(manifest, null, 2));
-  console.log(
-    `\nManifest → public/academy-media/${def.key || key}/manifest.json  (${(
-      totalMs / 1000
-    ).toFixed(1)}s total)\n`
-  );
+  if (!PUSH_DB) {
+    await writeFile(join(outDir, "manifest.json"), JSON.stringify(manifest, null, 2));
+    console.log(
+      `\nManifest → public/academy-media/${lessonKey}/manifest.json  (${(
+        totalMs / 1000
+      ).toFixed(1)}s total)\n`
+    );
+  } else {
+    console.log(`\nAll slides uploaded to Supabase Storage (${(totalMs / 1000).toFixed(1)}s total)\n`);
+  }
 
   if (PUSH_DB) {
-    await pushToDb(def, manifest);
+    await pushToDb(def, manifest, supabase);
   } else {
-    console.log("(Skipped DB. Re-run with --db to push into lessons.media_manifest.)\n");
+    console.log("(Skipped DB. Re-run with --db to upload to Storage + push to lessons.media_manifest.)\n");
   }
 }
 
-async function pushToDb(def, manifest) {
-  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!SUPABASE_URL || !SERVICE_KEY) {
-    console.error("--db requires NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY.");
-    process.exit(1);
-  }
-  const { createClient } = await import("@supabase/supabase-js");
-  const supabase = createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { persistSession: false },
-  });
-
+async function pushToDb(def, manifest, supabase) {
   // Scope to the lesson's track so a title collision across tracks can't update
   // the wrong row.
   const { data: mods, error: modErr } = await supabase
@@ -289,7 +316,17 @@ async function pushToDb(def, manifest) {
       "id",
       rows.map((r) => r.id)
     );
-  if (updErr) throw updErr;
+  if (updErr) {
+    if (updErr.message && updErr.message.includes("media_manifest")) {
+      console.error(
+        "\nDB ERROR: The 'media_manifest' column doesn't exist yet.\n" +
+        "Run this SQL in the Supabase SQL Editor:\n\n" +
+        "  ALTER TABLE public.lessons ADD COLUMN IF NOT EXISTS media_manifest jsonb;\n\n" +
+        "Then re-run this script.\n"
+      );
+    }
+    throw updErr;
+  }
   console.log(`DB: media_manifest written to ${rows.length} lesson row(s). ✓\n`);
 }
 

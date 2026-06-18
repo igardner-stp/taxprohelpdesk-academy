@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "seed": "node scripts/seed.mjs",
-    "gen:media": "node scripts/generate-lesson-media.mjs"
+    "db:setup": "node scripts/setup-storage.mjs",
+    "gen:media": "node scripts/generate-lesson-media.mjs",
+    "generate:all": "node -e \"const keys=['E1.1','E1.2','E1.3','E1.4','E1.5','E2.1','E2.2','E2.3','E2.4','E2.5','E3.1','E3.2','E3.3','E3.4','E3.5','B1.1','B1.2','B1.3','B1.4','B1.5','B2.1','B2.2','B2.3','B2.4','B3.1','B3.2','B3.3','B3.4','B3.5','EM1.1','EM1.2','EM1.3','EM1.4','EM1.5','SM1.1','SM1.2','SM1.3','SM1.4','SM1.5']; const {execSync}=require('child_process'); for(const k of keys){console.log('\\n=== '+k+' ==='); try{execSync('node scripts/generate-lesson-media.mjs '+k+' --db',{stdio:'inherit'})}catch(e){console.error('FAILED:',k)}}\""
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
