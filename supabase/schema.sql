@@ -70,6 +70,11 @@ create table if not exists public.lessons (
   created_at   timestamptz not null default now()
 );
 
+-- Interactive narrated experience (code-driven slides + ElevenLabs audio).
+-- Nullable: lessons without a manifest fall back to the markdown/video render.
+-- Added via ALTER so the table definition stays re-runnable on existing DBs.
+alter table public.lessons add column if not exists media_manifest jsonb;
+
 create table if not exists public.quizzes (
   id              uuid primary key default gen_random_uuid(),
   lesson_id       uuid not null unique references public.lessons(id) on delete cascade,

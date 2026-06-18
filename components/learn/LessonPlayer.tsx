@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { LessonMarkdown } from "@/components/LessonMarkdown";
+import { InteractiveLessonPlayer } from "@/components/learn/InteractiveLessonPlayer";
 import { CheckCircle, XCircle, ChevronLeft, ChevronRight } from "@/components/icons";
 import { markLessonComplete, submitQuiz } from "@/app/learn/actions";
 import type { LessonRow, SanitizedQuiz, QuizGradeResult } from "@/lib/types";
@@ -26,7 +27,10 @@ export function LessonPlayer({
   nextHref,
   trackHref,
 }: {
-  lesson: Pick<LessonRow, "id" | "title" | "body" | "video_url" | "image_urls">;
+  lesson: Pick<
+    LessonRow,
+    "id" | "title" | "body" | "video_url" | "image_urls" | "media_manifest"
+  >;
   quiz: SanitizedQuiz | null;
   trackId: string;
   initialCompleted: boolean;
@@ -87,6 +91,13 @@ export function LessonPlayer({
   }
 
   const videoSrc = lesson.video_url ? toEmbed(lesson.video_url) : null;
+  const manifest = lesson.media_manifest ?? null;
+
+  // When the narrated player reaches the end, auto-complete lessons that have
+  // no quiz (quiz lessons still require a passing submission).
+  async function onInteractiveFinished() {
+    if (!quiz && !completed) await onMarkComplete();
+  }
 
   return (
     <div className="pb-28">
@@ -98,34 +109,55 @@ export function LessonPlayer({
           </p>
         )}
 
-        {videoSrc && (
-          <div className="mt-5 aspect-video w-full overflow-hidden rounded-xl border border-surface-200">
-            <iframe
-              src={videoSrc}
-              title={lesson.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="h-full w-full"
-            />
-          </div>
-        )}
-
-        <div className="mt-5">
-          <LessonMarkdown body={lesson.body} />
-        </div>
-
-        {lesson.image_urls && lesson.image_urls.length > 0 && (
-          <div className="mt-5 space-y-4">
-            {lesson.image_urls.map((src, i) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={i}
-                src={src}
-                alt={`${lesson.title} — figure ${i + 1}`}
-                className="w-full rounded-lg border border-surface-200"
+        {manifest ? (
+          <>
+            <div className="mt-5">
+              <InteractiveLessonPlayer
+                manifest={manifest}
+                onFinished={onInteractiveFinished}
               />
-            ))}
-          </div>
+            </div>
+            <details className="panel mt-5 p-4">
+              <summary className="cursor-pointer text-sm font-semibold text-navy-800">
+                Read the lesson notes
+              </summary>
+              <div className="mt-3">
+                <LessonMarkdown body={lesson.body} />
+              </div>
+            </details>
+          </>
+        ) : (
+          <>
+            {videoSrc && (
+              <div className="mt-5 aspect-video w-full overflow-hidden rounded-xl border border-surface-200">
+                <iframe
+                  src={videoSrc}
+                  title={lesson.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="h-full w-full"
+                />
+              </div>
+            )}
+
+            <div className="mt-5">
+              <LessonMarkdown body={lesson.body} />
+            </div>
+
+            {lesson.image_urls && lesson.image_urls.length > 0 && (
+              <div className="mt-5 space-y-4">
+                {lesson.image_urls.map((src, i) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={i}
+                    src={src}
+                    alt={`${lesson.title} — figure ${i + 1}`}
+                    className="w-full rounded-lg border border-surface-200"
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </article>
 

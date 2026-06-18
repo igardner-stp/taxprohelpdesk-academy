@@ -2,6 +2,9 @@
 // Database types — mirror of supabase/schema.sql
 // =============================================================================
 
+import type { LessonMediaManifest } from "@/lib/interactive";
+export type { LessonMediaManifest } from "@/lib/interactive";
+
 export type Role = "admin" | "bureau_supervisor" | "learner";
 
 // Track ids are text PKs ('ero' | 'bureau' today, extensible later).
@@ -55,6 +58,10 @@ export interface LessonRow {
   tags: string[] | null;
   order_index: number;
   created_at: string;
+  // Interactive narrated experience (code-driven slides + ElevenLabs audio).
+  // Null on lessons that haven't been produced yet — those fall back to the
+  // markdown/video renderer. See lib/interactive.ts.
+  media_manifest: LessonMediaManifest | null;
 }
 
 // One question inside quizzes.questions (jsonb array).

@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "node scripts/seed.mjs"
+    "seed": "node scripts/seed.mjs",
+    "gen:media": "node scripts/generate-lesson-media.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",

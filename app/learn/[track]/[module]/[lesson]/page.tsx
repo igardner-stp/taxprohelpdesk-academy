@@ -27,12 +27,12 @@ export default async function LessonPage({
   // RLS only returns the lesson if it's in an assigned track.
   const { data: lessonData } = await supabase
     .from("lessons")
-    .select("id, module_id, title, body, video_url, image_urls")
+    .select("id, module_id, title, body, video_url, image_urls, media_manifest")
     .eq("id", params.lesson)
     .maybeSingle();
   const lesson = lessonData as Pick<
     LessonRow,
-    "id" | "module_id" | "title" | "body" | "video_url" | "image_urls"
+    "id" | "module_id" | "title" | "body" | "video_url" | "image_urls" | "media_manifest"
   > | null;
   if (!lesson) notFound();
 

@@ -75,6 +75,20 @@ const TRACKS = [
       "For service bureaus: recruit more offices, support and retain them, and scale the bureau.",
     order_index: 2,
   },
+  {
+    id: "ero-mktg",
+    name: "Tax Office Lead Generation & Marketing",
+    description:
+      "For tax office owners: set up a Facebook lead engine, build multi-touch contact sequences for every lead type, and convert more leads into loyal clients.",
+    order_index: 3,
+  },
+  {
+    id: "bureau-mktg",
+    name: "Service Bureau Lead Generation & Marketing",
+    description:
+      "For service bureaus: build a digital ERO recruiting engine, create proven contact strategies for each lead type, and scale office acquisition with measurable results.",
+    order_index: 4,
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -131,6 +145,24 @@ const MODULES = [
     description:
       "Know your unit economics, reinvest on a plan, build a team, and grow revenue per office.",
     order_index: 3,
+  },
+  // ── ERO Marketing track ─────────────────────────────────────────────────
+  {
+    _key: "EM1",
+    track_id: "ero-mktg",
+    title: "Tax Office Lead Generation (Facebook Ads + Contact Strategy)",
+    description:
+      "Build a Facebook lead engine, set up a capture and CRM system, create contact sequences for hot/warm/cold leads, and scale what converts.",
+    order_index: 1,
+  },
+  // ── Bureau Marketing track ───────────────────────────────────────────────
+  {
+    _key: "SM1",
+    track_id: "bureau-mktg",
+    title: "Service Bureau Lead Generation (Facebook Ads + Contact Strategy)",
+    description:
+      "Build a Facebook recruiting engine, qualify and route every ERO prospect, run proven contact sequences for each lead type, and grow your office base predictably.",
+    order_index: 1,
   },
 ];
 
@@ -614,6 +646,110 @@ High support hours, low volume, frequent bank-product issues, slow/disputed paym
 Your support hours are finite; every hour rescuing a lost cause is stolen from an office that would have grown.`,
   },
 
+  // ── EM1 ─────────────────────────────────────────────────────────────────
+  {
+    _key: "EM1.1",
+    _module_key: "EM1",
+    title: "Build Your Facebook Lead Engine",
+    order_index: 1,
+    video_url: null,
+    image_urls: null,
+    tags: ["facebook-ads", "lead-generation", "marketing", "ero"],
+    body: `Understand the full Facebook lead engine — audience targeting by zip code and life events, lead-form ads vs. website conversion campaigns, and the $10/day test budget that proves a market before you scale. Learn how to structure a campaign for tax season timing, why a fast lead response is the biggest ROI lever, and how to connect a Facebook Lead Ad to an instant email/text notification so no lead goes cold.`,
+  },
+  {
+    _key: "EM1.2",
+    _module_key: "EM1",
+    title: "Create Ads That Attract Tax Clients",
+    order_index: 2,
+    video_url: null,
+    image_urls: null,
+    tags: ["facebook-ads", "copywriting", "creative", "ero"],
+    body: `Step-by-step walkthrough of Ads Manager: Campaign → Ad Set → Ad. Configure a tax-season lead-form campaign from scratch — select objective, build a custom audience, set budget and schedule, write ad copy that speaks to refund anxiety and trust, and create an instant-form with the five fields that qualify leads without killing conversion. Includes a ready-to-use headline, body copy, and CTA template for independent tax offices.`,
+  },
+  {
+    _key: "EM1.3",
+    _module_key: "EM1",
+    title: "Capture and Qualify Every Lead",
+    order_index: 3,
+    video_url: null,
+    image_urls: null,
+    tags: ["crm", "lead-capture", "follow-up", "ero"],
+    body: `Connect Facebook Lead Ads to a CRM or Google Sheet so every lead lands instantly and triggers a response. Build a five-field intake form that separates HOT (returning client, ready now), WARM (interested, needs nurturing), and COLD (price-shopping, early-season) leads. Set up a lead-routing rule so hot leads get a same-day call, warm leads enter an email nurture, and cold leads get a value-first sequence — the system that stops leads from falling through the cracks.`,
+  },
+  {
+    _key: "EM1.4",
+    _module_key: "EM1",
+    title: "Contact Strategy: Close Every Lead Type",
+    order_index: 4,
+    video_url: null,
+    image_urls: null,
+    tags: ["contact-strategy", "follow-up", "sales", "ero"],
+    body: `Specific multi-touch contact sequences for each lead type. HOT leads: same-day call script, same-day text template, next-day booking link — 80 percent of tax clients book within 24 hours or not at all. WARM leads: day 1 value email, day 3 social proof text, day 7 call with a seasonal deadline. COLD leads: day 1 tip email, day 5 refund-timing content, day 14 incentive offer. Includes word-for-word scripts and email templates for each touchpoint.`,
+  },
+  {
+    _key: "EM1.5",
+    _module_key: "EM1",
+    title: "Measure, Optimize, and Scale",
+    order_index: 5,
+    video_url: null,
+    image_urls: null,
+    tags: ["analytics", "optimization", "scaling", "ero"],
+    body: `The five metrics that tell you whether your lead engine is working: cost per lead, lead-to-appointment rate, appointment-to-filed rate, cost per filed return, and return on ad spend. How to run a structured A/B test on headlines and audiences, when to kill an ad set vs. scale it, and how to build a seasonal calendar so spend ramps before peak season and stops cleanly after. Compliance reminder: all ad claims must be accurate, and ITIN/CAA services should only be advertised if the office holds Certifying Acceptance Agent status.`,
+  },
+
+  // ── SM1 ─────────────────────────────────────────────────────────────────
+  {
+    _key: "SM1.1",
+    _module_key: "SM1",
+    title: "Build Your Bureau Recruiting Engine",
+    order_index: 1,
+    video_url: null,
+    image_urls: null,
+    tags: ["facebook-ads", "bureau-recruiting", "lead-generation", "bureau"],
+    body: `The Facebook recruiting engine for service bureaus — how to target independent tax preparers, franchise-exit audiences, and small-business owners interested in the tax industry. Learn the three-stage funnel: awareness (educational content), consideration (economics comparison), conversion (demo request). Covers $15/day budget allocation, why bureau ads must separate the economics story from a software-feature pitch, and compliance principles around earnings claims in recruiting ads (FTC rules apply to every channel, not just the ad).`,
+  },
+  {
+    _key: "SM1.2",
+    _module_key: "SM1",
+    title: "Run Facebook Ads to Find EROs",
+    order_index: 2,
+    video_url: null,
+    image_urls: null,
+    tags: ["facebook-ads", "ads-manager", "bureau-recruiting", "bureau"],
+    body: `Step-by-step Ads Manager walkthrough for bureau recruiting campaigns: Campaign (lead generation objective), Ad Set (tax-prep interest targeting + lookalike from your best current offices), Ad (lead form with five qualifying fields). Includes a ready-to-use bureau recruiting ad template — headline focused on net income improvement, body that names the key benefit, and a CTA that books a demo rather than collecting a passive inquiry. How to set up a Zapier/Make automation so every new lead gets an instant SMS notification to your recruiter.`,
+  },
+  {
+    _key: "SM1.3",
+    _module_key: "SM1",
+    title: "Capture, Qualify, and Route Every Prospect",
+    order_index: 3,
+    video_url: null,
+    image_urls: null,
+    tags: ["crm", "qualification", "pipeline", "bureau"],
+    body: `Turn raw Facebook leads into a managed pipeline. Build a four-field qualification scorecard: EFIN status, annual return volume, current software/bureau, and motivation for switching. Route prospects to HOT (has EFIN, 200+ returns, dissatisfied, motivated now), WARM (EFIN pending or 100–199 returns, interested but evaluating), or COLD (under 100 returns or early-stage, needs longer nurture) tracks. Set up a CRM board with these three lanes and a defined SLA per lane so no prospect ages out of follow-up.`,
+  },
+  {
+    _key: "SM1.4",
+    _module_key: "SM1",
+    title: "Contact Strategy: Convert Prospects to Active Offices",
+    order_index: 4,
+    video_url: null,
+    image_urls: null,
+    tags: ["contact-strategy", "sales", "demo", "bureau"],
+    body: `Multi-touch sequences for each ERO prospect type. HOT: same-day call, personalized economics model within 24 hours, demo booked by day 3. WARM: day 1 intro email with a resource, day 3 economics snapshot, day 7 demo offer, day 14 case study, day 21 check-in. COLD: monthly value email and one educational touchpoint per quarter until timing changes. Covers the demo structure (20-minute economics walk-through, not a software tour), the most common follow-up mistakes, and earnings-claim compliance requirements that apply to every touchpoint beyond the ad.`,
+  },
+  {
+    _key: "SM1.5",
+    _module_key: "SM1",
+    title: "Measure Your Pipeline and Scale What Works",
+    order_index: 5,
+    video_url: null,
+    image_urls: null,
+    tags: ["analytics", "pipeline-metrics", "scaling", "bureau"],
+    body: `The six recruiting pipeline metrics every bureau should track: cost per lead, lead-to-demo rate, demo-to-signed rate, cost per activated office, office LTV, and LTV-to-CAC ratio. How to run structured split tests on ad creative and audience targeting, when a metric signals a funnel problem vs. a traffic problem, and how to build a recruiting calendar that aligns ad spend with the pre-season signing window (August–November). When LTV-to-CAC exceeds 3:1, scale spend; when it falls below 2:1, fix retention before spending more on acquisition.`,
+  },
+
   // ── B3 ──────────────────────────────────────────────────────────────────
   {
     _key: "B3.1",
@@ -862,8 +998,9 @@ async function main() {
   console.log(`   ✓ ${TRACKS.length} tracks upserted`);
 
   // 2. Delete existing modules for these tracks (cascades to lessons, quizzes, lesson_progress)
+  const ALL_TRACK_IDS = ["ero", "bureau", "ero-mktg", "bureau-mktg"];
   console.log(
-    "\n2) Deleting existing modules for tracks 'ero' and 'bureau'..."
+    `\n2) Deleting existing modules for tracks: ${ALL_TRACK_IDS.join(", ")}...`
   );
   console.log(
     "   NOTE: ON DELETE CASCADE will also remove all lessons, quizzes, and\n" +
@@ -874,7 +1011,7 @@ async function main() {
     await supabase
       .from("modules")
       .delete()
-      .in("track_id", ["ero", "bureau"])
+      .in("track_id", ALL_TRACK_IDS)
   );
   console.log("   ✓ Old modules (and cascaded rows) deleted");
 
