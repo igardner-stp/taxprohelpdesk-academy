@@ -54,6 +54,10 @@ export function InteractiveLessonPlayer({
   const [started, setStarted] = useState(false);
   // Highest slide index the learner has reached — chapter list is locked beyond this.
   const [highWaterMark, setHighWaterMark] = useState(0);
+  // True once the current slide's audio ends naturally (or if the slide has no audio).
+  const [currentSlideEnded, setCurrentSlideEnded] = useState(false);
+  // Global ms ceiling the learner has actually listened to — used to block scrub-ahead.
+  const [maxHeardMs, setMaxHeardMs] = useState(0);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const playingRef = useRef(playing);
@@ -62,10 +66,15 @@ export function InteractiveLessonPlayer({
   const pendingSeekRef = useRef(0); // ms to seek to once the next src loads
   const finishedCbRef = useRef(onFinished);
   const firedFinishRef = useRef(false);
+  const maxHeardMsRef = useRef(0);
+  const finishedRef = useRef(false);
+  const prefixRef = useRef(prefix);
   playingRef.current = playing;
   idxRef.current = idx;
   rateRef.current = rate;
   finishedCbRef.current = onFinished;
+  finishedRef.current = finished;
+  prefixRef.current = prefix;
 
   const slide = slides[idx];
 
@@ -92,9 +101,18 @@ export function InteractiveLessonPlayer({
   useEffect(() => {
     const a = audioRef.current;
     if (!a) return;
-    const onTime = () => setElapsed(a.currentTime * 1000);
+    const onTime = () => {
+      const ms = a.currentTime * 1000;
+      setElapsed(ms);
+      const gMs = (prefixRef.current[idxRef.current] || 0) + ms;
+      if (gMs > maxHeardMsRef.current) {
+        maxHeardMsRef.current = gMs;
+        setMaxHeardMs(gMs);
+      }
+    };
     const onEnded = () => {
       const i = idxRef.current;
+      setCurrentSlideEnded(true);
       if (i < slides.length - 1) {
         pendingSeekRef.current = 0;
         setIdx(i + 1);
@@ -120,6 +138,11 @@ export function InteractiveLessonPlayer({
   // ---- track furthest slide reached (gates chapter list) ------------------
   useEffect(() => {
     setHighWaterMark((prev) => Math.max(prev, idx));
+  }, [idx]);
+
+  // ---- reset "current slide ended" whenever we land on a new slide ---------
+  useEffect(() => {
+    setCurrentSlideEnded(false);
   }, [idx]);
 
   // ---- play/pause + rate + mute reflected to the element -------------------
@@ -171,7 +194,9 @@ export function InteractiveLessonPlayer({
 
   const seekToGlobalMs = useCallback(
     (ms: number) => {
-      const clampMs = Math.max(0, Math.min(total - 1, ms));
+      // When not finished, cap seek at the furthest point actually heard.
+      const ceiling = finishedRef.current ? total - 1 : maxHeardMsRef.current;
+      const clampMs = Math.max(0, Math.min(ceiling, ms));
       let i = prefix.findIndex((p, k) => clampMs >= p && clampMs < p + (durations[k] || 0));
       if (i < 0) i = slides.length - 1;
       const offset = clampMs - prefix[i];
@@ -218,7 +243,7 @@ export function InteractiveLessonPlayer({
       onPlayPause();
     } else if (e.key === "ArrowRight") {
       e.preventDefault();
-      goToSlide(idx + 1, playing);
+      if (canGoNext) goToSlide(idx + 1, playing);
     } else if (e.key === "ArrowLeft") {
       e.preventDefault();
       goToSlide(idx - 1, playing);
@@ -226,6 +251,15 @@ export function InteractiveLessonPlayer({
   };
 
   const globalMs = (prefix[idx] || 0) + Math.min(elapsed, durations[idx] || elapsed);
+
+  // Next is only allowed once the current slide's audio has ended naturally,
+  // or if we've already been past this slide (revisiting).
+  const hasAudio = !!slide.audioUrl;
+  const canGoNext =
+    !finished &&
+    idx < slides.length - 1 &&
+    (!hasAudio || idx < highWaterMark || currentSlideEnded);
+
   const cycleSpeed = () => {
     const next = SPEEDS[(SPEEDS.indexOf(rate) + 1) % SPEEDS.length];
     setRate(next);
@@ -339,8 +373,8 @@ export function InteractiveLessonPlayer({
           </button>
 
           <button
-            onClick={() => goToSlide(idx + 1, playing)}
-            disabled={idx === slides.length - 1}
+            onClick={() => canGoNext && goToSlide(idx + 1, playing)}
+            disabled={!canGoNext}
             className="rounded-lg p-2 text-navy-600 transition hover:bg-surface-100 disabled:opacity-40"
             aria-label="Next slide"
           >
