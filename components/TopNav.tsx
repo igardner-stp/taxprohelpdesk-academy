@@ -10,6 +10,7 @@ const NAV: Record<Role, { href: string; label: string }[]> = {
     { href: "/admin", label: "Overview" },
     { href: "/admin/users", label: "Users" },
     { href: "/admin/bureaus", label: "Bureaus" },
+    { href: "/admin/tenants", label: "Tenants" },
     { href: "/admin/content", label: "Content" },
     { href: "/admin/reports", label: "Reports" },
   ],
@@ -19,23 +20,23 @@ const NAV: Record<Role, { href: string; label: string }[]> = {
   ],
 };
 
-// App top bar: brand + role-scoped nav + identity + sign out. Mobile-first
-// (nav wraps below the brand row on small screens).
 export function TopNav({
   role,
   fullName,
   email,
+  logoUrl,
 }: {
   role: Role;
   fullName?: string | null;
   email?: string | null;
+  logoUrl?: string;
 }) {
   const items = NAV[role] ?? [];
   return (
     <header className="sticky top-0 z-30 border-b border-surface-200 bg-white/95 backdrop-blur">
       <div className="layout-px mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 py-3">
         <Link href={roleHome(role)} className="shrink-0">
-          <Logo />
+          <Logo logoUrl={logoUrl} />
         </Link>
 
         <nav className="order-3 flex w-full items-center gap-1 overflow-x-auto scroll-touch text-sm sm:order-2 sm:w-auto">

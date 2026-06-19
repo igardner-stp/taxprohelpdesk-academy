@@ -1,19 +1,20 @@
 import { LOGO_URL, APP_NAME } from "@/lib/constants";
 
-// Brand logo loaded from the live URL (single config value in lib/constants).
-// Plain <img> so a remote/CDN swap needs no Next image config changes.
+// eslint-disable-next-line @next/next/no-img-element
 export function Logo({
   className = "",
   showWordmark = true,
+  logoUrl,
 }: {
   className?: string;
   showWordmark?: boolean;
+  logoUrl?: string;
 }) {
+  const src = logoUrl ?? LOGO_URL;
   return (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={LOGO_URL}
+        src={src}
         alt={APP_NAME}
         className="h-8 w-auto shrink-0"
         width={160}

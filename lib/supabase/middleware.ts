@@ -6,8 +6,19 @@ type CookieToSet = { name: string; value: string; options?: CookieOptions };
 // Public paths reachable without a session.
 const PUBLIC_PREFIXES = ["/login", "/reset-password", "/set-password", "/auth"];
 
-export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({ request });
+export async function updateSession(
+  request: NextRequest,
+  extraRequestHeaders: Record<string, string> = {}
+) {
+  // Merge any extra headers (e.g. x-tenant-*) so server components can read
+  // them via headers(). Preserved even if the session refresh recreates the
+  // response inside setAll().
+  const baseHeaders = new Headers(request.headers);
+  for (const [k, v] of Object.entries(extraRequestHeaders)) {
+    baseHeaders.set(k, v);
+  }
+
+  let response = NextResponse.next({ request: { headers: baseHeaders } });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,7 +32,7 @@ export async function updateSession(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
-          response = NextResponse.next({ request });
+          response = NextResponse.next({ request: { headers: baseHeaders } });
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           );

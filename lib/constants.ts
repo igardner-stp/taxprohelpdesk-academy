@@ -19,3 +19,7 @@ export const SUPPORT_PHONE_HREF = `tel:${SUPPORT_PHONE.replace(/[^0-9+]/g, "")}`
 // Known track ids (the library is data-driven; these are just convenient
 // constants for default routing/labels — new tracks work without code changes).
 export const TRACK_IDS = ["ero", "bureau"] as const;
+
+// Base domain for white-label subdomains: <slug>.taxprotraining.com
+export const BASE_DOMAIN =
+  process.env.NEXT_PUBLIC_BASE_DOMAIN ?? "taxprotraining.com";

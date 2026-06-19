@@ -103,6 +103,14 @@ export interface CertificateRow {
   issued_at: string;
 }
 
+export interface TenantRow {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+  created_at: string;
+}
+
 // ---- Derived view models (computed, not stored) ----------------------------
 
 export interface TrackProgress {
