@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CheckCircle,
+  Lock,
 } from "@/components/icons";
 import { fmtTime, type LessonMediaManifest } from "@/lib/interactive";
 
@@ -51,6 +52,8 @@ export function InteractiveLessonPlayer({
   const [muted, setMuted] = useState(false);
   const [finished, setFinished] = useState(false);
   const [started, setStarted] = useState(false);
+  // Highest slide index the learner has reached — chapter list is locked beyond this.
+  const [highWaterMark, setHighWaterMark] = useState(0);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const playingRef = useRef(playing);
@@ -113,6 +116,11 @@ export function InteractiveLessonPlayer({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // ---- track furthest slide reached (gates chapter list) ------------------
+  useEffect(() => {
+    setHighWaterMark((prev) => Math.max(prev, idx));
+  }, [idx]);
 
   // ---- play/pause + rate + mute reflected to the element -------------------
   useEffect(() => {
@@ -415,32 +423,46 @@ export function InteractiveLessonPlayer({
           {slides.map((s, i) => {
             const isCurrent = i === idx;
             const done = i < idx || (finished && i === slides.length - 1);
+            // Locked = beyond the furthest slide reached, and lesson not yet finished
+            const locked = !finished && i > highWaterMark;
             return (
               <li key={s.id}>
                 <button
-                  onClick={() => goToSlide(i, true)}
+                  onClick={() => !locked && goToSlide(i, true)}
+                  disabled={locked}
+                  aria-disabled={locked}
                   className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition ${
-                    isCurrent
-                      ? "bg-brand-50 text-navy-900"
-                      : "text-navy-600 hover:bg-surface-100"
+                    locked
+                      ? "cursor-not-allowed opacity-40"
+                      : isCurrent
+                        ? "bg-brand-50 text-navy-900"
+                        : "text-navy-600 hover:bg-surface-100"
                   }`}
                 >
                   <span
                     className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                      isCurrent
-                        ? "bg-brand-600 text-white"
-                        : done
-                          ? "bg-green-100 text-status-green"
-                          : "bg-surface-200 text-navy-500"
+                      locked
+                        ? "bg-surface-200 text-navy-400"
+                        : isCurrent
+                          ? "bg-brand-600 text-white"
+                          : done
+                            ? "bg-green-100 text-status-green"
+                            : "bg-surface-200 text-navy-500"
                     }`}
                   >
-                    {done && !isCurrent ? <CheckCircle className="h-4 w-4" /> : i + 1}
+                    {locked ? (
+                      <Lock className="h-3 w-3" />
+                    ) : done && !isCurrent ? (
+                      <CheckCircle className="h-4 w-4" />
+                    ) : (
+                      i + 1
+                    )}
                   </span>
                   <span className={`flex-1 truncate ${isCurrent ? "font-semibold" : ""}`}>
                     {s.title || s.eyebrow || `Slide ${i + 1}`}
                   </span>
                   <span className="font-mono text-xs tabular-nums text-navy-400">
-                    {fmtTime(durations[i] || 0)}
+                    {locked ? "—" : fmtTime(durations[i] || 0)}
                   </span>
                 </button>
               </li>

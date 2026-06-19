@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth";
 import { getTrack } from "@/lib/data/content";
 import { PrintButton } from "@/components/learn/PrintButton";
+import { DownloadCertificateButton } from "@/components/learn/DownloadCertificateButton";
 import { LOGO_URL, APP_NAME, SUPPORT_PHONE } from "@/lib/constants";
 import type { CertificateRow } from "@/lib/types";
 
@@ -44,7 +45,15 @@ export default async function CertificatePage({
         <Link href="/learn" className="text-sm font-medium text-brand-600 hover:underline">
           ← Back to training
         </Link>
-        <PrintButton />
+        <div className="flex items-center gap-3">
+          <DownloadCertificateButton
+            learnerName={learnerName}
+            trackName={track?.name ?? params.track}
+            issuedAt={cert.issued_at}
+            logoUrl={LOGO_URL}
+          />
+          <PrintButton className="btn-secondary" />
+        </div>
       </div>
 
       {/* Certificate */}
@@ -84,7 +93,7 @@ export default async function CertificatePage({
       </div>
 
       <p className="no-print mt-4 text-center text-sm text-navy-500">
-        Tip: in the print dialog choose &ldquo;Save as PDF&rdquo; to keep a digital copy.
+        Click <strong>Download PDF</strong> for a one-click save, or use <strong>Print / Save as PDF</strong> to customise the layout.
       </p>
     </div>
   );
