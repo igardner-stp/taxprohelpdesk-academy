@@ -22,4 +22,4 @@ export const TRACK_IDS = ["ero", "bureau"] as const;
 
 // Base domain for white-label subdomains: <slug>.taxprotraining.com
 export const BASE_DOMAIN =
-  process.env.NEXT_PUBLIC_BASE_DOMAIN ?? "taxprotraining.com";
+  process.env.NEXT_PUBLIC_BASE_DOMAIN ?? "taxprohelpdesk.com";
