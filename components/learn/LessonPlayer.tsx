@@ -287,7 +287,7 @@ export function LessonPlayer({
             </Link>
           )}
 
-          {!quiz && !completed && (
+          {!quiz && !completed && !manifest && (
             <button onClick={onMarkComplete} disabled={busy} className="btn-primary">
               {busy ? "Saving…" : "Mark complete"}
             </button>
